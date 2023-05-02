@@ -55,6 +55,25 @@ class RecordingFile(object):
     def __exit__(self, exception, value, traceback):
         self.close()
 
+    def close(self):
+        self._stream.close()
+        self._pa.terminate()
+        self.wavefile.close()
+
+    def get_callback(self):
+        def callback(in_data, frame_count, time_info, status):
+            self.wavefile.writeframes(in_data)
+            return in_data, pyaudio.paContinue
+
+        return callback
+
+    def _prepare_file(self, file_name, mode='wb'):
+        wavefile = wave.open(file_name, mode)
+        wavefile.setnchannels(self.channels)
+        wavefile.setsampwidth(self._pa.get_sample_size(pyaudio.paInt16))
+        wavefile.setframerate(self.rate)
+        return wavefile
+
     def record(self, duration):
         # Use a stream with no callback function in blocking mode
         self._stream = self._pa.open(format=pyaudio.paInt16,
@@ -81,22 +100,3 @@ class RecordingFile(object):
     def stop_recording(self):
         self._stream.stop_stream()
         return self
-
-    def get_callback(self):
-        def callback(in_data, frame_count, time_info, status):
-            self.wavefile.writeframes(in_data)
-            return in_data, pyaudio.paContinue
-
-        return callback
-
-    def close(self):
-        self._stream.close()
-        self._pa.terminate()
-        self.wavefile.close()
-
-    def _prepare_file(self, file_name, mode='wb'):
-        wavefile = wave.open(file_name, mode)
-        wavefile.setnchannels(self.channels)
-        wavefile.setsampwidth(self._pa.get_sample_size(pyaudio.paInt16))
-        wavefile.setframerate(self.rate)
-        return wavefile
