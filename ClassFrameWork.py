@@ -5,19 +5,17 @@ import pydub
 
 class myRecorder:
 
-    def __init__(self, file_path=None, channels=1, rate=44100, frames_per_buffer=1024, format_out='mp3'):
+    def __init__(self, file_path, channels=1, rate=44100, frames_per_buffer=1024, format_out='mp3'):
         self.recorder = Recorder(channels=channels, rate=rate, frames_per_buffer=frames_per_buffer)
         self.file_path = file_path
         self.running = None
         self.format_out = format_out
 
-    def start(self, file_path_=None):
+    def start(self):
 
         if self.running is not None:
             print('already running')
         else:
-            if file_path_ is not None:
-                self.file_path = file_path_
             self.running = self.recorder.open(self.file_path + '.wav')
             self.running.start_recording()
             print('started recording', self.file_path)

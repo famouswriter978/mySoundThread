@@ -152,3 +152,5 @@ cython_debug/
 #.idea/
 framework.wav
 framework.wav.mp3
+*.mp3
+*.wav
