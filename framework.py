@@ -1,0 +1,42 @@
+import tkinter as tk
+from RawRecorder import *
+
+# --- functions ---
+
+
+def start():
+    global running
+
+    if running is not None:
+        print('already running')
+    else:
+        running = recorder.open('./framework.wav')
+        running.start_recording()
+        print('started recording')
+
+
+def stop():
+    global running
+
+    if running is not None:
+        running.stop_recording()
+        running.close()
+        running = None
+        print('stopped recording')
+    else:
+        print('not running')
+
+
+# --- main ---
+recorder = Recorder(channels=1, rate=44100, frames_per_buffer=1024)
+running = None
+
+root = tk.Tk()
+
+button_recorder = tk.Button(root, text='Start', command=start)
+button_recorder.pack()
+
+button_stop = tk.Button(root, text='Stop', command=stop)
+button_stop.pack()
+
+root.mainloop()
