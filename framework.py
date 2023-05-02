@@ -27,7 +27,7 @@ def stop():
         running.close()
         running = None
         print('stopped recording')
-        pydub.AudioSegment.from_wav(file_name).export(file_name + '.' + out_format, out_format=out_format)
+        pydub.AudioSegment.from_wav(file_name).export(file_name + '.' + out_format, format=out_format)
     else:
         print('not running')
 
