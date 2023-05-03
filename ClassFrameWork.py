@@ -4,6 +4,8 @@ from RawRecorder import *
 import pydub
 from whisper_to_write import *
 from threading import Thread
+from datetime import datetime
+
 
 class myRecorder:
 
@@ -24,9 +26,7 @@ class myRecorder:
             print('stopped thread', i)
 
     def start(self):
-
         self.file_path = os.path.join(self.cwd_path, 'test.wav')
-        self.out_path = self.file_path.replace('wav', 'mp3')
         self.txt_path = self.file_path.replace('wav', 'txt')
         if self.running is not None:
             print('already running')
@@ -37,26 +37,25 @@ class myRecorder:
 
     def stop(self):
         if self.running is not None:
+            file_name = 'speak_write' + str(datetime.now()).replace(':', '-').replace('.', '-') + '.mp3'
+            self.out_path = os.path.join(self.cwd_path, file_name)
             self.running.stop_recording()
             self.running.close()
             self.running = None
-            print('Stopped recording; output in ', self.file_path)
+            print('Stopped recording; audio output in ', self.file_path)
             pydub.AudioSegment.from_wav(self.file_path).export(self.out_path, format=self.format_out)
-            # try:
-            os.remove(self.file_path)
-            print('Converted', self.file_path, 'to', self.out_path)
-            # whisper_to_write(filepaths=(self.out_path,), fast=True)
-            args = ('', 'cpu', self.out_path, 'False', 'True')
-            # whisper_thd = Thread(target=whisper_to_write, args=args)
-            # whisper_thd.start()
-            # whisper_thd.join()
-            self.thread.append(Thread(target=whisper_to_write, args=args))
-            self.thread[self.thd_num].start()
-            self.thd_num += 1
-            print('started thread', self.thd_num)
-            # except OSError:
-            #     print('Conversion from', self.file_path, 'to', self.out_path, 'failed')
-            #     pass
+            try:
+                os.remove(self.file_path)
+                print('Converted', self.file_path, 'to', self.out_path)
+                # whisper_to_write(filepaths=(self.out_path,), fast=True)
+                args = ('', 'cpu', self.out_path, 'False', 'True')
+                self.thread.append(Thread(target=whisper_to_write, args=args))
+                self.thread[self.thd_num].start()
+                self.thd_num += 1
+                print('started thread', self.thd_num)
+            except OSError:
+                print('Conversion from', self.file_path, 'to', self.out_path, 'failed')
+                pass
         else:
             print('not running')
 
