@@ -43,6 +43,7 @@ def whisper_to_write(model='', device='cpu', filepaths=None, fast=False):
         exit(0)
 
     # Request list of files in a browse dialog
+    print('filepaths', filepaths)
     if filepaths is None:
         root = tk.Tk()
         root.withdraw()
@@ -54,6 +55,7 @@ def whisper_to_write(model='', device='cpu', filepaths=None, fast=False):
 
     # Configuration for entire folder selection read with filepaths
     (config_path, config_basename, config_file_path, config) = configurator(filepaths[0])
+    print('config_path', config_path, 'config_basename', config_basename, 'config_file_path', config_file_path, 'config', config)
     if model == '':
         model = config_section_map(config, "Whisper Preferences")['model']
 
@@ -62,6 +64,7 @@ def whisper_to_write(model='', device='cpu', filepaths=None, fast=False):
         (path, basename) = os.path.split(filepath)
         (file_root, extension) = os.path.splitext(basename)
         txt_path = os.path.join(path, file_root + '.txt')
+        print('path', path, 'basename', basename, 'file_root', file_root, 'extension', extension)
         cache_path = os.path.expanduser('~') + '/.cache'  # Put cache in home so user needs it only once
 
         # Filter audio files; print message sometimes
