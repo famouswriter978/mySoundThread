@@ -39,9 +39,9 @@ class myRecorder:
             os.remove(self.file_path)
             print('Converted', self.file_path, 'to', self.out_path)
             # whisper_to_write(filepaths=(self.out_path,), fast=True)
-            opath = "filepaths=('" + self.out_path + "',)"
-            print('opath', opath)
-            whisper_thd = Thread(target=whisper_to_write, args=(opath, "fast=True"))
+            args = ('', 'cpu', self.out_path, 'False')
+            print('args', args)
+            whisper_thd = Thread(target=whisper_to_write, args=args)
             whisper_thd.start()
             whisper_thd.join()
             print('done thread')
@@ -50,30 +50,6 @@ class myRecorder:
             #     pass
         else:
             print('not running')
-
-from time import sleep, perf_counter
-from threading import Thread
-
-
-def task():
-    print('Starting a task...')
-    sleep(1)
-    print('done')
-
-
-start_time = perf_counter()
-
-# create two new threads
-t1 = Thread(target=task)
-t2 = Thread(target=task)
-
-# start the threads
-t1.start()
-t2.start()
-
-# wait for the threads to complete
-t1.join()
-
 
 
 def start():

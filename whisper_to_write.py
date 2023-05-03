@@ -29,9 +29,13 @@ os.environ['PYTHONIOENCODING'] = 'utf - 8'  # prevents UnicodeEncodeError: 'char
 
 
 # Wrap the openai Whisper program to make it useful and more portable
-def whisper_to_write(model='', device='cpu', filepaths=None, fast=False):
+def whisper_to_write(model='', device='cpu', file_in=None, waiting=True):
 
     # Initialization
+    if file_in is None:
+        filepaths = None
+    else:
+        filepaths = [file_in]
     supported_ext = []
     for typ in supported:
         supported_ext.append(('all audio format', typ))
@@ -43,7 +47,6 @@ def whisper_to_write(model='', device='cpu', filepaths=None, fast=False):
         exit(0)
 
     # Request list of files in a browse dialog
-    print('filepaths', filepaths)
     if filepaths is None:
         root = tk.Tk()
         root.withdraw()
@@ -55,7 +58,6 @@ def whisper_to_write(model='', device='cpu', filepaths=None, fast=False):
 
     # Configuration for entire folder selection read with filepaths
     (config_path, config_basename, config_file_path, config) = configurator(filepaths[0])
-    print('config_path', config_path, 'config_basename', config_basename, 'config_file_path', config_file_path, 'config', config)
     if model == '':
         model = config_section_map(config, "Whisper Preferences")['model']
 
@@ -102,7 +104,7 @@ def whisper_to_write(model='', device='cpu', filepaths=None, fast=False):
         time.sleep(1.0)
 
     # After all files are processed, ask for input to force hold to see stdout
-    if not fast:
+    if waiting is True:
         input('\nEnter anything to close window')
 
 
