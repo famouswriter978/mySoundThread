@@ -15,6 +15,13 @@ class myRecorder:
         self.cwd_path = cwd_path
         self.running = None
         self.format_out = format_out
+        self.thd_num = 0
+        self.thread = []
+
+    def quit(self):
+        for i in range(self.thd_num):
+            self.thread[i].join()
+            print('stopped thread', i)
 
     def start(self):
 
@@ -40,10 +47,13 @@ class myRecorder:
             print('Converted', self.file_path, 'to', self.out_path)
             # whisper_to_write(filepaths=(self.out_path,), fast=True)
             args = ('', 'cpu', self.out_path, 'False', 'True')
-            whisper_thd = Thread(target=whisper_to_write, args=args)
-            whisper_thd.start()
-            whisper_thd.join()
-            print('done thread')
+            # whisper_thd = Thread(target=whisper_to_write, args=args)
+            # whisper_thd.start()
+            # whisper_thd.join()
+            self.thread.append(Thread(target=whisper_to_write, args=args))
+            self.thread[self.thd_num].start()
+            self.thd_num += 1
+            print('started thread', self.thd_num)
             # except OSError:
             #     print('Conversion from', self.file_path, 'to', self.out_path, 'failed')
             #     pass
@@ -59,6 +69,10 @@ def stop():
     recorder.stop()
 
 
+def quitting():
+    recorder.quit()
+
+
 # --- main ---
 
 # Configuration for entire folder selection read with filepaths
@@ -72,5 +86,11 @@ button_recorder.pack()
 
 button_stop = tk.Button(root, text='Stop', command=stop)
 button_stop.pack()
+
+button_blank = tk.Button(root)
+button_blank.pack()
+
+button_quit = tk.Button(root, text='Quit', command=quitting)
+button_quit.pack()
 
 root.mainloop()
