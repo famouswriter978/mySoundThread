@@ -84,11 +84,8 @@ root = tk.Tk()
 button_recorder = tk.Button(root, text='Start', command=start)
 button_recorder.pack()
 
-button_stop = tk.Button(root, text='Stop', command=stop)
+button_stop = tk.Button(root, text='Pause', command=stop)
 button_stop.pack()
-
-button_blank = tk.Button(root)
-button_blank.pack()
 
 button_quit = tk.Button(root, text='Quit', command=quitting)
 button_quit.pack()
