@@ -212,17 +212,20 @@ def configurator(filepath):
 
 
 # Open text file in editor
-def display_result(txt_path, platform):
+def display_result(txt_path, platform, silent):
     paragraph(txt_path)
 
-    if platform.system() == 'Darwin':
-        subprocess.Popen(['open', '-a', 'TextEdit', txt_path])
+    if silent is False:
+        if platform.system() == 'Darwin':
+            subprocess.Popen(['open', '-a', 'TextEdit', txt_path])
 
-    if platform.system() == 'Linux':
-        subprocess.Popen(['gedit', txt_path])
+        if platform.system() == 'Linux':
+            subprocess.Popen(['gedit', txt_path])
 
-    elif platform.system() == 'Windows':
-        subprocess.Popen(['notepad', txt_path])
+        elif platform.system() == 'Windows':
+            subprocess.Popen(['notepad', txt_path])
+    else:
+        print('Results in', txt_path)
 
 
 # Define output write, e.g. 'file.txt'
