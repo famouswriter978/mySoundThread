@@ -29,7 +29,7 @@ os.environ['PYTHONIOENCODING'] = 'utf - 8'  # prevents UnicodeEncodeError: 'char
 
 
 # Wrap the openai Whisper program to make it useful and more portable
-def whisper_to_write(model='', device='cpu', file_in=None, waiting=True):
+def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=False):
 
     # Initialization
     if file_in is None:
@@ -66,7 +66,6 @@ def whisper_to_write(model='', device='cpu', file_in=None, waiting=True):
         (path, basename) = os.path.split(filepath)
         (file_root, extension) = os.path.splitext(basename)
         txt_path = os.path.join(path, file_root + '.txt')
-        print('path', path, 'basename', basename, 'file_root', file_root, 'extension', extension)
         cache_path = os.path.expanduser('~') + '/.cache'  # Put cache in home so user needs it only once
 
         # Filter audio files; print message sometimes
@@ -78,33 +77,38 @@ def whisper_to_write(model='', device='cpu', file_in=None, waiting=True):
         if model != '':
             command += '--model ' + model
         start_time = timeit.default_timer()
-        print(command + '\n')
+        if silent is False:
+            print(command + '\n')
         writer = get_writer('txt', path)
         wh_model = whisper.load_model(model, device=device, download_root=cache_path)
         print(Colors.bg.brightblack, Colors.fg.wheat)
         result = whisper.transcribe(wh_model, filepath, temperature=0.0, fp16=False, verbose=True)
         print(Colors.reset)
-        print(command + '\n')
+        if silent is False:
+            print(command + '\n')
         if result == -1:
-            print(Colors.fg.blue, 'failed...on to next file', Colors.reset)
+            if silent is False:
+                print(Colors.fg.blue, 'failed...on to next file', Colors.reset)
             continue
-        print(Colors.fg.orange, 'Transcribed in {:6.1f} seconds.'.format(timeit.default_timer() - start_time),
-              Colors.reset, end='')
+        if silent is False:
+            print(Colors.fg.orange, 'Transcribed in {:6.1f} seconds.'.format(timeit.default_timer() - start_time),
+                  Colors.reset, end='')
 
         # Save the result in a text file and display it for pasting to writing documents
         #            writer and writer_args are defined in openai-whisper/transcribe.py
         writer_args = {'highlight_words': False, 'max_line_count': None, 'max_line_width': None}
         writer(result, txt_path, writer_args)
-        print(Colors.fg.orange, "  The result is in ", Colors.fg.blue, txt_path, Colors.reset)
-        print('')
-        display_result(txt_path, platform)
+        if silent is False:
+            print(Colors.fg.orange, "  The result is in ", Colors.fg.blue, txt_path, Colors.reset)
+            print('')
+            display_result(txt_path, platform)
 
         # Delay a little to allow windows to pop up without hiding each other.
         # The slower the computer, the more needed.
         time.sleep(1.0)
 
     # After all files are processed, ask for input to force hold to see stdout
-    if waiting is True:
+    if waiting is True and silent is False:
         input('\nEnter anything to close window')
 
 
