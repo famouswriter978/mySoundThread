@@ -77,30 +77,38 @@ def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=
         if model != '':
             command += '--model ' + model
         start_time = timeit.default_timer()
+
+        # Transcribe
         if silent is False:
             print(command + '\n')
-        writer = get_writer('txt', path)
-        wh_model = whisper.load_model(model, device=device, download_root=cache_path)
-        print(Colors.bg.brightblack, Colors.fg.wheat)
-        result = whisper.transcribe(wh_model, filepath, temperature=0.0, fp16=False, verbose=True)
-        print(Colors.reset)
-        if silent is False:
+            writer = get_writer('txt', path)
+            wh_model = whisper.load_model(model, device=device, download_root=cache_path)
+            print(Colors.bg.brightblack, Colors.fg.wheat)
+            result = whisper.transcribe(wh_model, filepath, temperature=0.0, fp16=False, verbose=True)
+            print(Colors.reset)
             print(command + '\n')
-        if result == -1:
-            if silent is False:
+            if result == -1:
                 print(Colors.fg.blue, 'failed...on to next file', Colors.reset)
-            continue
-        if silent is False:
+                continue
             print(Colors.fg.orange, 'Transcribed in {:6.1f} seconds.'.format(timeit.default_timer() - start_time),
                   Colors.reset, end='')
-
-        # Save the result in a text file and display it for pasting to writing documents
-        #            writer and writer_args are defined in openai-whisper/transcribe.py
-        writer_args = {'highlight_words': False, 'max_line_count': None, 'max_line_width': None}
-        writer(result, txt_path, writer_args)
-        if silent is False:
+            # Save the result in a text file and display it for pasting to writing documents
+            #            writer and writer_args are defined in openai-whisper/transcribe.py
+            writer_args = {'highlight_words': False, 'max_line_count': None, 'max_line_width': None}
+            writer(result, txt_path, writer_args)
             print(Colors.fg.orange, "  The result is in ", Colors.fg.blue, txt_path, Colors.reset)
-            print('')
+        else:
+            writer = get_writer('txt', path)
+            wh_model = whisper.load_model(model, device=device, download_root=cache_path)
+            result = whisper.transcribe(wh_model, filepath, temperature=0.0, fp16=False, verbose=True)
+            if result == -1:
+                continue
+            # Save the result in a text file and display it for pasting to writing documents
+            #            writer and writer_args are defined in openai-whisper/transcribe.py
+            writer_args = {'highlight_words': False, 'max_line_count': None, 'max_line_width': None}
+            writer(result, txt_path, writer_args)
+
+        print('')
         display_result(txt_path, platform, silent)
 
         # Delay a little to allow windows to pop up without hiding each other.

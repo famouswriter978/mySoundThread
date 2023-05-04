@@ -1,5 +1,7 @@
 import os
-import tkinter as tk
+import tkinter.filedialog
+import tkinter.ttk
+
 from RawRecorder import *
 import pydub
 from whisper_to_write import *
@@ -10,12 +12,12 @@ from pvrecorder import PvRecorder
 
 class myRecorder:
 
-    def __init__(self, cwd_path, channels=1, rate=44100, frames_per_buffer=1024, format_out='mp3'):
+    def __init__(self, pwd_path, channels=1, rate=44100, frames_per_buffer=1024, format_out='mp3'):
         self.recorder = Recorder(channels=channels, rate=rate, frames_per_buffer=frames_per_buffer)
         self.file_path = None
         self.out_path = None
         self.txt_path = None
-        self.cwd_path = cwd_path
+        self.pwd_path = pwd_path
         self.running = None
         self.format_out = format_out
         self.thd_num = 0
@@ -27,7 +29,7 @@ class myRecorder:
             print('stopped thread', i)
 
     def start(self):
-        self.file_path = os.path.join(self.cwd_path, 'test.wav')
+        self.file_path = os.path.join(self.pwd_path, 'test.wav')
         self.txt_path = self.file_path.replace('wav', 'txt')
         if self.running is not None:
             print('already recording')
@@ -50,7 +52,7 @@ class myRecorder:
     def stop(self):
         if self.running is not None:
             file_name = 'speak_write' + str(datetime.now()).replace(':', '-').replace('.', '-') + '.mp3'
-            self.out_path = os.path.join(self.cwd_path, file_name)
+            self.out_path = os.path.join(self.pwd_path, file_name)
             self.running.stop_recording()
             self.running.close()
             self.running = None
@@ -109,6 +111,26 @@ except IOError:
 
 # Define frame
 root = tk.Tk()
+root.geometry('300x150')
+root.title('fwgWhisper')
+script_loc = os.path.dirname(os.path.abspath(__file__))
+icon_path = os.path.join(script_loc, 'fwg.png')
+root.iconphoto(False, tk.PhotoImage(file=icon_path))
+path = os.getcwd()
+
+
+def select_recordings_folder():
+    global path
+    global folder_button
+    path = tk.filedialog.askdirectory(title="Select a Recordings Folder")
+    os.chdir(path)
+    print('changing working directory to', path)
+    folder_button.config(text=path)
+
+
+folder_button = tk.Button(root, text=path, command=select_recordings_folder)
+folder_button.pack(ipadx=5, pady=15)
+
 if mic_avail:
     button_recorder = tk.Button(root, text='Dictate', command=start)
     button_recorder.pack()
@@ -118,8 +140,13 @@ if mic_avail:
 else:
     button_recorder = tk.Button(root, text='NO MIC')
     button_recorder.pack()
+
+separator0 = tk.ttk.Separator(root, orient='horizontal')
+separator0.pack(fill='x')
 button_recorder = tk.Button(root, text='Transcribe a File', command=transcribe)
 button_recorder.pack()
+separator1 = tk.ttk.Separator(root, orient='horizontal')
+separator1.pack(fill='x')
 button_quit = tk.Button(root, text='Quit', command=quitting)
 button_quit.pack()
 
