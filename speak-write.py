@@ -11,12 +11,25 @@ from pvrecorder import PvRecorder
 
 
 class ExRoot():
-    def __init__(self, config_path_):
+    def __init__(self):
+        self.script_loc = os.path.dirname(os.path.abspath(__file__))
+        self.config_path = os.path.join(self.script_loc, 'root_config.ini')
         self.root_config = None
         self.path = None
         self.root_config = None
-        self.load_root_config(config_path_)
+        self.load_root_config(self.config_path)
         self.folder_button = None
+
+    def select_recordings_folder(self):
+        self.path = tk.filedialog.askdirectory(title="Select a Recordings Folder")
+        os.chdir(self.path)
+        print('changed working directory to', self.path)
+        self.folder_button.config(text=self.path)
+        before_folder = root_config['Root Preferences']['recordings path']
+        root_config.set('Root Preferences', 'recordings path', self.path)
+        after_folder = self.root_config['Root Preferences']['recordings path']
+        self.save_root_config(self.config_path)
+        print('Changed recordings folder from\n', before_folder, '\nto\n', after_folder)
 
     def load_root_config(self, config_file_path):
         self.root_config = configparser.ConfigParser()
@@ -104,13 +117,16 @@ class myRecorder:
             print('not running')
 
 
-
 def start():
     recorder.start()
 
 
 def stop():
     recorder.stop()
+
+
+def select_recordings_folder():
+    ex_root.select_recordings_folder()
 
 
 def transcribe():
@@ -125,9 +141,9 @@ def quitting():
 # --- main ---
 # Configuration for entire folder selection read with filepaths
 cwd_path = os.getcwd()
-script_loc = os.path.dirname(os.path.abspath(__file__))
-config_path = os.path.join(script_loc, 'root_config.ini')
-ex_root = ExRoot(config_path)
+ex_root = ExRoot()
+
+
 root_config = ex_root.root_config
 
 path = root_config['Root Preferences']['recordings path']
@@ -150,23 +166,8 @@ except IOError:
 root = tk.Tk()
 root.geometry('300x200')
 root.title('fwgWhisper')
-icon_path = os.path.join(script_loc, 'fwg.png')
+icon_path = os.path.join(ex_root.script_loc, 'fwg.png')
 root.iconphoto(False, tk.PhotoImage(file=icon_path))
-
-
-def select_recordings_folder():
-    global ex_root
-    ex_root.path = tk.filedialog.askdirectory(title="Select a Recordings Folder")
-    os.chdir(ex_root.path)
-    print('changed working directory to', ex_root.path)
-    ex_root.folder_button.config(text=ex_root.path)
-    before_folder = root_config['Root Preferences']['recordings path']
-    root_config.set('Root Preferences', 'recordings path', ex_root.path)
-    after_folder = ex_root.root_config['Root Preferences']['recordings path']
-    ex_root.save_root_config(config_path)
-    print('Changed recordings folder from\n', before_folder, '\nto\n', after_folder)
-
-
 folder_label = tk.Label(root, text='Recordings path')
 folder_label.pack()
 ex_root.folder_button = tk.Button(root, text=path, command=select_recordings_folder)
