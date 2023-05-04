@@ -10,6 +10,30 @@ from datetime import datetime
 from pvrecorder import PvRecorder
 
 
+def load_root_config(config_file_path):
+    global root_config
+    root_config = configparser.ConfigParser()
+    if os.path.isfile(config_file_path):
+        root_config.read(config_file_path)
+    else:
+        cfg_file = open(config_file_path, 'w')
+        root_config.add_section('Root Preferences')
+        root_config.set('Root Preferences', 'recordings path', config_file_path)
+        root_config.write(cfg_file)
+        cfg_file.close()
+    return root_config
+
+
+def save_root_config(config_file_path):
+    global root_config
+    if os.path.isfile(config_file_path):
+        cfg_file = open(config_file_path, 'w')
+        root_config.write(cfg_file)
+        cfg_file.close()
+        print('Saved', config_file_path)
+    return root_config
+
+
 class myRecorder:
 
     def __init__(self, pwd_path, channels=1, rate=44100, frames_per_buffer=1024, format_out='mp3'):
@@ -95,6 +119,10 @@ def quitting():
 # Configuration for entire folder selection read with filepaths
 cwd_path = os.getcwd()
 recorder = myRecorder(cwd_path)
+script_loc = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(script_loc, 'root_config.ini')
+root_config = load_root_config(config_path)
+path = root_config['Root Preferences']['recordings path']
 
 # Get/check microphone
 mic_avail = True
@@ -111,25 +139,33 @@ except IOError:
 
 # Define frame
 root = tk.Tk()
-root.geometry('300x150')
+root.geometry('300x200')
 root.title('fwgWhisper')
-script_loc = os.path.dirname(os.path.abspath(__file__))
 icon_path = os.path.join(script_loc, 'fwg.png')
 root.iconphoto(False, tk.PhotoImage(file=icon_path))
-path = os.getcwd()
 
 
 def select_recordings_folder():
     global path
     global folder_button
+    global root_config
     path = tk.filedialog.askdirectory(title="Select a Recordings Folder")
     os.chdir(path)
-    print('changing working directory to', path)
+    print('changed working directory to', path)
     folder_button.config(text=path)
+    before_folder = root_config['Root Preferences']['recordings path']
+    root_config.set('Root Preferences', 'recordings path', path)
+    after_folder = root_config['Root Preferences']['recordings path']
+    save_root_config(config_path)
+    print('Changed recordings folder from\n', before_folder, '\nto\n', after_folder)
 
 
+folder_label = tk.Label(root, text='Recordings path')
+folder_label.pack()
 folder_button = tk.Button(root, text=path, command=select_recordings_folder)
-folder_button.pack(ipadx=5, pady=15)
+folder_button.pack(ipadx=5, pady=5)
+separator0 = tk.ttk.Separator(root, orient='horizontal')
+separator0.pack(fill='x')
 
 if mic_avail:
     button_recorder = tk.Button(root, text='Dictate', command=start)
@@ -141,14 +177,14 @@ else:
     button_recorder = tk.Button(root, text='NO MIC')
     button_recorder.pack()
 
-separator0 = tk.ttk.Separator(root, orient='horizontal')
-separator0.pack(fill='x')
-button_recorder = tk.Button(root, text='Transcribe a File', command=transcribe)
-button_recorder.pack()
 separator1 = tk.ttk.Separator(root, orient='horizontal')
 separator1.pack(fill='x')
+button_recorder = tk.Button(root, text='Transcribe a File', command=transcribe)
+button_recorder.pack(ipadx=5, pady=5)
+separator2 = tk.ttk.Separator(root, orient='horizontal')
+separator2.pack(fill='x')
 button_quit = tk.Button(root, text='Quit', command=quitting)
-button_quit.pack()
+button_quit.pack(ipadx=5, pady=5)
 
 # Begin
 root.mainloop()
