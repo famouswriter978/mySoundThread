@@ -10,6 +10,7 @@ from datetime import datetime
 from pvrecorder import PvRecorder
 
 
+# Executive class to control the global variables
 class ExRoot:
     def __init__(self):
         self.script_loc = os.path.dirname(os.path.abspath(__file__))
