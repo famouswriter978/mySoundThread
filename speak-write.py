@@ -96,15 +96,15 @@ class myRecorder:
         self.pwd_path = pwd_path
         self.running = None
         self.format_out = format_out
-        self.thd_num = 0
+        self.thd_num = -1
         self.thread = []
         self.result_file = None
 
     def quit(self):
-        for i in range(self.thd_num):
+        for i in range(self.thd_num+1):
             self.thread[i].join()
             display_result(self.thread[i].result_path, platform, False)
-            print('stopped thread', i)
+            print('stopped thread', i, ': result in', self.thread[i].result_path)
 
     def start(self):
         self.file_path = os.path.join(self.pwd_path, 'test.wav')
@@ -118,11 +118,9 @@ class myRecorder:
 
     def transcribe(self):
         try:
-            args = ('', 'cpu', None, 'True', 'False')  # default args to force select/convert
-            # self.thread.append(Thread(target=whisper_to_write, args=args))
             self.thread.append(CustomThread(self.out_path, True, False))
-            self.thread[self.thd_num].start()
             self.thd_num += 1
+            self.thread[self.thd_num].start()
             print('started thread', self.thd_num)
         except OSError:
             print('Transcription failed')
@@ -141,8 +139,8 @@ class myRecorder:
                 os.remove(self.file_path)
                 print('Converted', self.file_path, 'to', self.out_path)
                 self.thread.append(CustomThread(self.out_path, False, True))
-                self.thread[self.thd_num].start()
                 self.thd_num += 1
+                self.thread[self.thd_num].start()
                 print('started thread', self.thd_num)
             except OSError:
                 print('Conversion from', self.file_path, 'to', self.out_path, 'failed')
