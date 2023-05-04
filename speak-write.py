@@ -1,7 +1,25 @@
-import os
+#  Graphical interface to whisper:  dictate, read file, transcribe
+#  Run in PyCharm
+#     or
+#  'python3 speak-write.py'
+#
+#  2023-May-04  Dave Gutz   Create
+# Copyright (C) 2023 Dave Gutz
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation;
+# version 2.1 of the License.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# See http://www.fsf.org/licensing/licenses/lgpl.txt for full license text.
+
 import tkinter.filedialog
 import tkinter.ttk
-
 from RawRecorder import *
 import pydub
 from whisper_to_write import *
