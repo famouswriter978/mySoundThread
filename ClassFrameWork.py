@@ -5,6 +5,7 @@ import pydub
 from whisper_to_write import *
 from threading import Thread
 from datetime import datetime
+from pvrecorder import PvRecorder
 
 
 class myRecorder:
@@ -29,11 +30,22 @@ class myRecorder:
         self.file_path = os.path.join(self.cwd_path, 'test.wav')
         self.txt_path = self.file_path.replace('wav', 'txt')
         if self.running is not None:
-            print('already running')
+            print('already recording')
         else:
             self.running = self.recorder.open(self.file_path)
             self.running.start_recording()
             print('started recording', self.file_path)
+
+    def transcribe(self):
+        try:
+            args = ('', 'cpu', None, 'True', 'False')  # default args to force select/convert
+            self.thread.append(Thread(target=whisper_to_write, args=args))
+            self.thread[self.thd_num].start()
+            self.thd_num += 1
+            print('started thread', self.thd_num)
+        except OSError:
+            print('Transcription failed')
+            pass
 
     def stop(self):
         if self.running is not None:
@@ -68,25 +80,48 @@ def stop():
     recorder.stop()
 
 
+def transcribe():
+    recorder.transcribe()
+
+
 def quitting():
     recorder.quit()
+    exit(0)
 
 
 # --- main ---
-
 # Configuration for entire folder selection read with filepaths
 cwd_path = os.getcwd()
 recorder = myRecorder(cwd_path)
 
+# Get/check microphone
+mic_avail = True
+try:
+    audio_devices = PvRecorder.get_audio_devices()
+    for index, device in enumerate(audio_devices):
+        print(f"[{index}] {device}")
+    pa = pyaudio.PyAudio()
+    default = pa.get_default_input_device_info()  # raises IOError
+    print('using', default['name'])
+except IOError:
+    print(Colors.fg.red, 'Default microphone not found.  Capability limited', Colors.reset)
+    mic_avail = False
+
+# Define frame
 root = tk.Tk()
+if mic_avail:
+    button_recorder = tk.Button(root, text='Dictate', command=start)
+    button_recorder.pack()
 
-button_recorder = tk.Button(root, text='Start', command=start)
+    button_stop = tk.Button(root, text='Stop', command=stop)
+    button_stop.pack()
+else:
+    button_recorder = tk.Button(root, text='NO MIC')
+    button_recorder.pack()
+button_recorder = tk.Button(root, text='Transcribe a File', command=transcribe)
 button_recorder.pack()
-
-button_stop = tk.Button(root, text='Pause', command=stop)
-button_stop.pack()
-
 button_quit = tk.Button(root, text='Quit', command=quitting)
 button_quit.pack()
 
+# Begin
 root.mainloop()

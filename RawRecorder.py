@@ -48,6 +48,9 @@ class RecordingFile(object):
         self._pa = pyaudio.PyAudio()
         self.wavefile = self._prepare_file(self.file_name, self.mode)
         self._stream = None
+        # Check input device
+        # id = self._pa.get_default_input_device_info()
+        # print('id', id['name'])
 
     def __enter__(self):
         return self
