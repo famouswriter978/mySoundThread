@@ -118,11 +118,11 @@ def quitting():
 # --- main ---
 # Configuration for entire folder selection read with filepaths
 cwd_path = os.getcwd()
-recorder = myRecorder(cwd_path)
 script_loc = os.path.dirname(os.path.abspath(__file__))
 config_path = os.path.join(script_loc, 'root_config.ini')
 root_config = load_root_config(config_path)
 path = root_config['Root Preferences']['recordings path']
+recorder = myRecorder(path)
 
 # Get/check microphone
 mic_avail = True
