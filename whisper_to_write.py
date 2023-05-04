@@ -62,6 +62,7 @@ def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=
         model = config_section_map(config, "Whisper Preferences")['model']
 
     # Loop all selected files; use extensions to filter audio files
+    txt_path = None
     for filepath in filepaths:
         (path, basename) = os.path.split(filepath)
         (file_root, extension) = os.path.splitext(basename)
@@ -118,6 +119,8 @@ def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=
     # After all files are processed, ask for input to force hold to see stdout
     if waiting is True and silent is False:
         input('\nEnter anything to close window')
+
+    return txt_path
 
 
 if __name__ == '__main__':

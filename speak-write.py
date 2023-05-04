@@ -72,6 +72,20 @@ class ExRoot:
         return self.root_config
 
 
+# Wrap thread class so can extract resulting filename
+class CustomThread(Thread):
+    def __init__(self, out_path, waiting, silent):
+        Thread.__init__(self)
+        self.waiting = waiting
+        self.silent = silent
+        self.out_path = out_path
+        self.result_path = None
+
+    def run(self):
+        self.result_path = whisper_to_write(model='', device='cpu', file_in=self.out_path,
+                                            waiting=self.waiting, silent=self.silent)
+
+
 class myRecorder:
 
     def __init__(self, pwd_path, channels=1, rate=44100, frames_per_buffer=1024, format_out='mp3'):
@@ -84,10 +98,12 @@ class myRecorder:
         self.format_out = format_out
         self.thd_num = 0
         self.thread = []
+        self.result_file = None
 
     def quit(self):
         for i in range(self.thd_num):
             self.thread[i].join()
+            display_result(self.thread[i].result_path, platform, False)
             print('stopped thread', i)
 
     def start(self):
@@ -103,7 +119,8 @@ class myRecorder:
     def transcribe(self):
         try:
             args = ('', 'cpu', None, 'True', 'False')  # default args to force select/convert
-            self.thread.append(Thread(target=whisper_to_write, args=args))
+            # self.thread.append(Thread(target=whisper_to_write, args=args))
+            self.thread.append(CustomThread(self.out_path, True, False))
             self.thread[self.thd_num].start()
             self.thd_num += 1
             print('started thread', self.thd_num)
@@ -123,8 +140,7 @@ class myRecorder:
             try:
                 os.remove(self.file_path)
                 print('Converted', self.file_path, 'to', self.out_path)
-                args = ('', 'cpu', self.out_path, 'False', 'True')
-                self.thread.append(Thread(target=whisper_to_write, args=args))
+                self.thread.append(CustomThread(self.out_path, False, True))
                 self.thread[self.thd_num].start()
                 self.thd_num += 1
                 print('started thread', self.thd_num)
