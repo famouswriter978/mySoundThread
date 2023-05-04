@@ -10,7 +10,7 @@ from datetime import datetime
 from pvrecorder import PvRecorder
 
 
-class ExRoot():
+class ExRoot:
     def __init__(self):
         self.script_loc = os.path.dirname(os.path.abspath(__file__))
         self.config_path = os.path.join(self.script_loc, 'root_config.ini')
@@ -25,8 +25,8 @@ class ExRoot():
         os.chdir(self.path)
         print('changed working directory to', self.path)
         self.folder_button.config(text=self.path)
-        before_folder = root_config['Root Preferences']['recordings path']
-        root_config.set('Root Preferences', 'recordings path', self.path)
+        before_folder = self.root_config['Root Preferences']['recordings path']
+        self.root_config.set('Root Preferences', 'recordings path', self.path)
         after_folder = self.root_config['Root Preferences']['recordings path']
         self.save_root_config(self.config_path)
         print('Changed recordings folder from\n', before_folder, '\nto\n', after_folder)
@@ -45,7 +45,6 @@ class ExRoot():
         return self.root_config
 
     def save_root_config(self, config_path_):
-        self.load_root_config(config_path_)
         if os.path.isfile(config_path_):
             cfg_file = open(config_path_, 'w')
             self.root_config.write(cfg_file)
@@ -142,12 +141,7 @@ def quitting():
 # Configuration for entire folder selection read with filepaths
 cwd_path = os.getcwd()
 ex_root = ExRoot()
-
-
-root_config = ex_root.root_config
-
-path = root_config['Root Preferences']['recordings path']
-recorder = myRecorder(path)
+recorder = myRecorder(ex_root.path)
 
 # Get/check microphone
 mic_avail = True
@@ -170,7 +164,7 @@ icon_path = os.path.join(ex_root.script_loc, 'fwg.png')
 root.iconphoto(False, tk.PhotoImage(file=icon_path))
 folder_label = tk.Label(root, text='Recordings path')
 folder_label.pack()
-ex_root.folder_button = tk.Button(root, text=path, command=select_recordings_folder)
+ex_root.folder_button = tk.Button(root, text=ex_root.path, command=select_recordings_folder)
 ex_root.folder_button.pack(ipadx=5, pady=5)
 separator0 = tk.ttk.Separator(root, orient='horizontal')
 separator0.pack(fill='x')
