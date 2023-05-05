@@ -200,7 +200,7 @@ except IOError:
 # Define frame
 root = tk.Tk()
 root.geometry('300x200')
-root.title('fwgWhisper')
+root.title('openAI whisper')
 icon_path = os.path.join(ex_root.script_loc, 'fwg.png')
 root.iconphoto(False, tk.PhotoImage(file=icon_path))
 folder_label = tk.Label(root, text='Recordings path')
