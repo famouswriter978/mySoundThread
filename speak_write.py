@@ -204,37 +204,57 @@ except IOError:
     print(Colors.fg.red, 'Default microphone not found.  Capability limited', Colors.reset)
     mic_avail = False
 
-# Define frame
+# Define frames
 root = tk.Tk()
-root.geometry('300x200')
+root.maxsize(300, 400)
 root.title('openAI whisper')
 icon_path = os.path.join(ex_root.script_loc, 'fwg.png')
 root.iconphoto(False, tk.PhotoImage(file=icon_path))
-folder_label = tk.Label(root, text='Recordings path')
-folder_label.pack()
-ex_root.folder_button = tk.Button(root, text=ex_root.rec_folder, command=select_recordings_folder)
-ex_root.folder_button.pack(ipadx=5, pady=5)
-separator0 = tk.ttk.Separator(root, orient='horizontal')
-separator0.pack(fill='x')
+# root.config(bg="skyblue")
+
+outer_frame = tk.Frame(root, bd=5, bg="skyblue")
+outer_frame.pack()
+
+padx_frames = 1
+pady_frames = 1
+
+recordings_frame = tk.Frame(outer_frame, width=300, height=200, bg="purple", bd=4)
+recordings_frame.grid(row=1, column=1, padx=padx_frames, pady=pady_frames, sticky="WE")
+recordings_frame.rowconfigure(0, weight=1)
+recordings_frame.columnconfigure(0, weight=1)
+
+dictation_frame = tk.Frame(outer_frame, width=300, height=100, bg="purple", bd=4)
+dictation_frame.grid(row=2, column=1, padx=padx_frames, pady=pady_frames, sticky="WE")
+
+transcription_frame = tk.Frame(outer_frame, width=300, height=100, bg="purple", bd=4)
+transcription_frame.grid(row=3, column=1, padx=padx_frames, pady=pady_frames, sticky="WE")
+
+quit_frame = tk.Frame(outer_frame, width=300, height=100, bg="purple", bd=4)
+quit_frame.grid(row=4, column=1, padx=padx_frames, pady=pady_frames, sticky="WE")
+
+folder_label = tk.Label(recordings_frame, text='Recordings path', bg="purple", fg="white")
+folder_label.grid(row=1, column=1)
+ex_root.folder_button = tk.Button(recordings_frame, text=ex_root.rec_folder, command=select_recordings_folder)
+ex_root.folder_button.grid(row=2, column=1, ipadx=5, pady=5)
 
 if mic_avail:
-    button_recorder = tk.Button(root, text='Dictate', command=start)
-    button_recorder.pack()
+    button_recorder = tk.Button(dictation_frame, text='Dictate', command=start, bg="orange", fg="white")
+    button_recorder.grid(row=1, column=1, ipadx=5, pady=5, sticky="news")
 
-    button_stop = tk.Button(root, text='Stop', command=stop)
-    button_stop.pack()
+    button_spacer = tk.Label(dictation_frame, bg="purple", text='Dictate', fg="purple")
+    button_spacer.grid(row=1, column=2, ipadx=5, pady=5, sticky="news")
+
+    button_stop = tk.Button(dictation_frame, text='Stop', command=stop, bg="black", fg="white")
+    button_stop.grid(row=1, column=3, ipadx=5, pady=5, sticky="news")
 else:
-    button_recorder = tk.Button(root, text='NO MIC')
+    button_recorder = tk.Button(dictation_frame, text='NO MIC')
     button_recorder.pack()
 
-separator1 = tk.ttk.Separator(root, orient='horizontal')
-separator1.pack(fill='x')
-button_recorder = tk.Button(root, text='Transcribe a File', command=transcribe)
-button_recorder.pack(ipadx=5, pady=5)
-separator2 = tk.ttk.Separator(root, orient='horizontal')
-separator2.pack(fill='x')
-button_quit = tk.Button(root, text='Quit', command=quitting)
-button_quit.pack(ipadx=5, pady=5)
+trans_recorder = tk.Button(transcription_frame, text='Transcribe a File', command=transcribe)
+trans_recorder.grid(row=1, column=1, ipadx=5, pady=5)
+
+button_quit = tk.Button(quit_frame, text='Quit', command=quitting)
+button_quit.grid(row=1, column=1, ipadx=5, pady=5)
 
 # Begin
 root.mainloop()
