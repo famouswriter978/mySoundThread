@@ -206,7 +206,7 @@ def config_section_map(config, section):
 # Work out all the paths
 def configurator(filepath):
     (config_path, config_basename) = os.path.split(filepath)
-    config_file_path = os.path.join(config_path, 'whisper-to-write.pref')
+    config_file_path = os.path.join(config_path, 'whisper_to_write.pref')
     config = load_config(config_file_path)
     return config_path, config_basename, config_file_path, config
 

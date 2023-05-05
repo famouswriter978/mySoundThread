@@ -1,7 +1,7 @@
 #  Graphical interface to whisper:  dictate, read file, transcribe
 #  Run in PyCharm
 #     or
-#  'python3 speak-write.py'
+#  'python3 speak_write.py'
 #
 #  2023-May-04  Dave Gutz   Create
 # Copyright (C) 2023 Dave Gutz
@@ -103,8 +103,11 @@ class myRecorder:
     def quit(self):
         for i in range(self.thd_num+1):
             self.thread[i].join()
-            display_result(self.thread[i].result_path, platform, False)
-            print('stopped thread', i, ': result in', self.thread[i].result_path)
+            if self.thread[i].result_path is not None:
+                display_result(self.thread[i].result_path, platform, False)
+                print('stopped thread', i, ': result in', self.thread[i].result_path)
+            else:
+                print('stopped thread', i, ': result was screened')
 
     def start(self):
         self.file_path = os.path.join(self.pwd_path, 'test.wav')
@@ -120,8 +123,8 @@ class myRecorder:
         try:
             self.thread.append(CustomThread(None, False, True))
             self.thd_num += 1
+            print('starting thread', self.thd_num, end='...')
             self.thread[self.thd_num].start()
-            print('started thread', self.thd_num)
         except OSError:
             print('Transcription failed')
             pass
@@ -140,8 +143,8 @@ class myRecorder:
                 print('Converted', self.file_path, 'to', self.audio_path)
                 self.thread.append(CustomThread(self.audio_path, False, True))
                 self.thd_num += 1
+                print('starting thread', self.thd_num, end='...')
                 self.thread[self.thd_num].start()
-                print('started thread', self.thd_num)
             except OSError:
                 print('Conversion from', self.file_path, 'to', self.audio_path, 'failed')
                 pass

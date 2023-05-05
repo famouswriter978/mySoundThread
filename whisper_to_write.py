@@ -53,8 +53,9 @@ def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=
         filepaths = filedialog.askopenfilenames(title='Please select files', filetypes=supported_ext)
         if filepaths is None or filepaths == '':
             print("No file chosen")
-            input('\nEnter anything to close window')
-            exit(0)
+            if silent is False:
+                input('\nEnter anything to close window')
+            return None
 
     # Configuration for entire folder selection read with filepaths
     (config_path, config_basename, config_file_path, config) = configurator(filepaths[0])
