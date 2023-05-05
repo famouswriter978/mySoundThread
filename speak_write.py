@@ -34,18 +34,22 @@ class ExRoot:
         self.script_loc = os.path.dirname(os.path.abspath(__file__))
         self.config_path = os.path.join(self.script_loc, 'root_config.ini')
         self.root_config = None
-        self.path = None
+        self.rec_folder = None
         self.root_config = None
         self.load_root_config(self.config_path)
         self.folder_button = None
 
     def select_recordings_folder(self):
-        self.path = tk.filedialog.askdirectory(title="Select a Recordings Folder")
-        os.chdir(self.path)
-        print('changed working directory to', self.path)
-        self.folder_button.config(text=self.path)
+        print('before', self.rec_folder)
+        ask_rec_folder = tk.filedialog.askdirectory(title="Select a Recordings Folder", initialdir=self.rec_folder)
+        print('after askdirectory', self.rec_folder)
+        if ask_rec_folder != '':
+            self.rec_folder = ask_rec_folder
+        os.chdir(self.rec_folder)
+        print('changed working directory to', self.rec_folder)
+        self.folder_button.config(text=self.rec_folder)
         before_folder = self.root_config['Root Preferences']['recordings path']
-        self.root_config.set('Root Preferences', 'recordings path', self.path)
+        self.root_config.set('Root Preferences', 'recordings path', self.rec_folder)
         after_folder = self.root_config['Root Preferences']['recordings path']
         self.save_root_config(self.config_path)
         print('Changed recordings folder from\n', before_folder, '\nto\n', after_folder)
@@ -57,11 +61,14 @@ class ExRoot:
         else:
             cfg_file = open(config_file_path, 'w')
             self.root_config.add_section('Root Preferences')
-            self.root_config.set('Root Preferences', 'recordings path', config_file_path)
+            rec_folder_path = os.path.expanduser('~') + '/Documents/Recorder'
+            if not os.path.exists(rec_folder_path):
+                os.makedirs(rec_folder_path)
+            self.root_config.set('Root Preferences', 'recordings path', rec_folder_path)
             self.root_config.write(cfg_file)
             cfg_file.close()
-        self.path = self.root_config['Root Preferences']['recordings path']
-        print('Recordings folder is', self.path)
+        self.rec_folder = self.root_config['Root Preferences']['recordings path']
+        print('Recordings folder is', self.rec_folder)
         return self.root_config
 
     def save_root_config(self, config_path_):
@@ -182,7 +189,7 @@ def quitting():
 # Configuration for entire folder selection read with filepaths
 cwd_path = os.getcwd()
 ex_root = ExRoot()
-recorder = myRecorder(ex_root.path)
+recorder = myRecorder(ex_root.rec_folder)
 
 # Get/check microphone
 mic_avail = True
@@ -205,7 +212,7 @@ icon_path = os.path.join(ex_root.script_loc, 'fwg.png')
 root.iconphoto(False, tk.PhotoImage(file=icon_path))
 folder_label = tk.Label(root, text='Recordings path')
 folder_label.pack()
-ex_root.folder_button = tk.Button(root, text=ex_root.path, command=select_recordings_folder)
+ex_root.folder_button = tk.Button(root, text=ex_root.rec_folder, command=select_recordings_folder)
 ex_root.folder_button.pack(ipadx=5, pady=5)
 separator0 = tk.ttk.Separator(root, orient='horizontal')
 separator0.pack(fill='x')
