@@ -166,6 +166,7 @@ def transcribe():
 
 
 def quitting():
+    recorder.stop()
     recorder.quit()
     exit(0)
 
