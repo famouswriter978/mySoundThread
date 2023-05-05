@@ -206,33 +206,39 @@ except IOError:
 
 # Define frames
 root = tk.Tk()
-root.maxsize(300, 400)
+root.maxsize(250, 800)
 root.title('openAI whisper')
 icon_path = os.path.join(ex_root.script_loc, 'fwg.png')
 root.iconphoto(False, tk.PhotoImage(file=icon_path))
 # root.config(bg="skyblue")
 
-outer_frame = tk.Frame(root, bd=5, bg="skyblue")
-outer_frame.pack()
+bg_color = "gray"
+box_color = "darkslategrey"
+
+outer_frame = tk.Frame(root, bd=5, bg=bg_color)
+outer_frame.pack(fill='x')
+
+pic_frame = tk.Frame(root, bd=5, bg=bg_color)
+pic_frame.pack(fill='x')
 
 padx_frames = 1
-pady_frames = 1
+pady_frames = 2
 
-recordings_frame = tk.Frame(outer_frame, width=300, height=200, bg="purple", bd=4)
+recordings_frame = tk.Frame(outer_frame, width=550, height=200, bg=box_color, bd=4, relief=tk.SUNKEN)
 recordings_frame.grid(row=1, column=1, padx=padx_frames, pady=pady_frames, sticky="WE")
-recordings_frame.rowconfigure(0, weight=1)
-recordings_frame.columnconfigure(0, weight=1)
+recordings_frame.grid_columnconfigure(0, weight=1)
+recordings_frame.grid_rowconfigure(0, weight=1)
 
-dictation_frame = tk.Frame(outer_frame, width=300, height=100, bg="purple", bd=4)
+dictation_frame = tk.Frame(outer_frame, width=350, height=100, bg=box_color, bd=4, relief=tk.SUNKEN)
 dictation_frame.grid(row=2, column=1, padx=padx_frames, pady=pady_frames, sticky="WE")
 
-transcription_frame = tk.Frame(outer_frame, width=300, height=100, bg="purple", bd=4)
+transcription_frame = tk.Frame(outer_frame, width=350, height=100, bg=box_color, bd=4, relief=tk.SUNKEN)
 transcription_frame.grid(row=3, column=1, padx=padx_frames, pady=pady_frames, sticky="WE")
 
-quit_frame = tk.Frame(outer_frame, width=300, height=100, bg="purple", bd=4)
+quit_frame = tk.Frame(outer_frame, width=350, height=100, bg=box_color, bd=4, relief=tk.SUNKEN)
 quit_frame.grid(row=4, column=1, padx=padx_frames, pady=pady_frames, sticky="WE")
 
-folder_label = tk.Label(recordings_frame, text='Recordings path', bg="purple", fg="white")
+folder_label = tk.Label(recordings_frame, text='Recordings path', bg=box_color, fg="white")
 folder_label.grid(row=1, column=1)
 ex_root.folder_button = tk.Button(recordings_frame, text=ex_root.rec_folder, command=select_recordings_folder)
 ex_root.folder_button.grid(row=2, column=1, ipadx=5, pady=5)
@@ -241,7 +247,7 @@ if mic_avail:
     button_recorder = tk.Button(dictation_frame, text='Dictate', command=start, bg="orange", fg="white")
     button_recorder.grid(row=1, column=1, ipadx=5, pady=5, sticky="news")
 
-    button_spacer = tk.Label(dictation_frame, bg="purple", text='Dictate', fg="purple")
+    button_spacer = tk.Label(dictation_frame, bg=box_color, text='Dictate', fg=box_color)
     button_spacer.grid(row=1, column=2, ipadx=5, pady=5, sticky="news")
 
     button_stop = tk.Button(dictation_frame, text='Stop', command=stop, bg="black", fg="white")
@@ -255,6 +261,13 @@ trans_recorder.grid(row=1, column=1, ipadx=5, pady=5)
 
 button_quit = tk.Button(quit_frame, text='Quit', command=quitting)
 button_quit.grid(row=1, column=1, ipadx=5, pady=5)
+
+pic_path = os.path.join(ex_root.script_loc, 'fwg_table.png')
+image = tk.Frame(pic_frame, borderwidth=2, bg=box_color, relief=tk.SUNKEN)
+image.pack(side=tk.TOP, fill="x")
+image.picture = tk.PhotoImage(file=pic_path)
+image.label = tk.Label(image, image=image.picture)
+image.label.pack()
 
 # Begin
 root.mainloop()
