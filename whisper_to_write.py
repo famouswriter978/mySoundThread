@@ -17,7 +17,7 @@
 # Lesser General Public License for more details.
 #
 # See http://www.fsf.org/licensing/licenses/lgpl.txt for full license text.
-
+import os
 import time
 import timeit
 import whisper
@@ -43,8 +43,9 @@ def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=
     if check_install(platform.system()) != 0:
         print(Colors.fg.red, 'Installation problems.   See suggestions a few lines above')
         # Ask for input to force hold to see stderr
-        input('Enter anything to close window')
-        exit(0)
+        if silent is False:
+            input('\nEnter anything to close window')
+        return None
 
     # Request list of files in a browse dialog
     if filepaths is None:

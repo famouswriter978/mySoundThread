@@ -61,6 +61,7 @@ class ExRoot:
             self.root_config.write(cfg_file)
             cfg_file.close()
         self.path = self.root_config['Root Preferences']['recordings path']
+        print('Recordings folder is', self.path)
         return self.root_config
 
     def save_root_config(self, config_path_):
@@ -74,26 +75,29 @@ class ExRoot:
 
 # Wrap thread class so can extract resulting filename
 class CustomThread(Thread):
-    def __init__(self, audio_path, waiting, silent):
+    def __init__(self, audio_path, waiting, silent, recordings_folder):
         Thread.__init__(self)
         self.waiting = waiting
         self.silent = silent
         self.audio_path = audio_path
         self.result_path = None
+        self.recordings_folder = recordings_folder
 
     def run(self):
         self.result_path = whisper_to_write(model='', device='cpu', file_in=self.audio_path,
                                             waiting=self.waiting, silent=self.silent)
+        if self.result_path is not None:
+            print('Results displayed automatically at quit')
 
 
 class myRecorder:
 
-    def __init__(self, pwd_path, channels=1, rate=44100, frames_per_buffer=1024, format_out='mp3'):
+    def __init__(self, rec_path, channels=1, rate=44100, frames_per_buffer=1024, format_out='mp3'):
         self.recorder = Recorder(channels=channels, rate=rate, frames_per_buffer=frames_per_buffer)
         self.file_path = None
         self.audio_path = None
         self.txt_path = None
-        self.pwd_path = pwd_path
+        self.rec_path = rec_path
         self.running = None
         self.format_out = format_out
         self.thd_num = -1
@@ -110,7 +114,7 @@ class myRecorder:
                 print('stopped thread', i, ': result was screened')
 
     def start(self):
-        self.file_path = os.path.join(self.pwd_path, 'test.wav')
+        self.file_path = os.path.join(self.rec_path, 'test.wav')
         self.txt_path = self.file_path.replace('wav', 'txt')
         if self.running is not None:
             print('already recording')
@@ -121,7 +125,7 @@ class myRecorder:
 
     def transcribe(self):
         try:
-            self.thread.append(CustomThread(None, False, True))
+            self.thread.append(CustomThread(None, False, True, self.rec_path))
             self.thd_num += 1
             print('starting thread', self.thd_num, end='...')
             self.thread[self.thd_num].start()
@@ -132,7 +136,7 @@ class myRecorder:
     def stop(self):
         if self.running is not None:
             file_name = 'speak-write' + str(datetime.now()).replace(':', '-').replace('.', '-') + '.mp3'
-            self.audio_path = os.path.join(self.pwd_path, file_name)
+            self.audio_path = os.path.join(self.rec_path, file_name)
             self.running.stop_recording()
             self.running.close()
             self.running = None
@@ -141,7 +145,7 @@ class myRecorder:
             try:
                 os.remove(self.file_path)
                 print('Converted', self.file_path, 'to', self.audio_path)
-                self.thread.append(CustomThread(self.audio_path, False, True))
+                self.thread.append(CustomThread(self.audio_path, False, True, self.rec_path))
                 self.thd_num += 1
                 print('starting thread', self.thd_num, end='...')
                 self.thread[self.thd_num].start()
@@ -149,7 +153,7 @@ class myRecorder:
                 print('Conversion from', self.file_path, 'to', self.audio_path, 'failed')
                 pass
         else:
-            print('not running')
+            print('recorder was not running')
 
 
 def start():

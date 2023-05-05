@@ -72,6 +72,12 @@ def check_install(platform, pure_python=True):
         (have_python, have_pip) = check_install_python(platform)
         have_whisper = check_install_whisper(pure_python)
         have_ffmpeg = check_install_ffmpeg(pure_python)
+        if platform == 'Windows':
+            have_ffmpeg_windows = check_install_ffmpeg(pure_python=False)
+            if have_ffmpeg_windows == -1:
+                have_ffmpeg_windows = False
+            else:
+                have_ffmpeg_windows = True
         print('')
 
         # python help
@@ -83,8 +89,8 @@ def check_install(platform, pure_python=True):
             pip_help(platform)
 
         # whisper / ffmpeg help:   openai-whisper installs them
-        if not have_whisper or not have_ffmpeg:
-            whisper_help(platform, have_whisper, have_ffmpeg)
+        if not have_whisper or not have_ffmpeg or not have_ffmpeg_windows:
+            whisper_help(platform, have_whisper, have_ffmpeg, have_ffmpeg_windows)
 
         # All good
         # #########Interim don't worry about macOS
@@ -461,14 +467,30 @@ def screened(extension, source, result, basename):
 
 
 # whisper help
-def whisper_help(platform, have_whisper, have_ffmpeg):
+def whisper_help(platform, have_whisper, have_ffmpeg, have_ffmpeg_windows):
 
     # windows
     if platform == 'Windows':
-        print(Colors.fg.green, inspect.cleandoc("""
-            ############# Once python and pip installed, install whisper and ffmpeg by:
-            pip3 install openai-whisper 
-            """), Colors.reset, sep=os.linesep)
+        # windows whisper
+        if not have_whisper:
+            print(Colors.fg.green, inspect.cleandoc("""
+                ############# Once python and pip installed, install whisper and ffmpeg by:
+                pip3 install openai-whisper 
+                """), Colors.reset, sep=os.linesep)
+
+        # windows ffmpeg
+        if not have_ffmpeg:
+            print(Colors.fg.green, inspect.cleandoc("""
+                #############  Once python and pip installed, install ffmpeg by:
+                python -m pip install ffmpeg-python
+                """), Colors.reset, sep=os.linesep)
+
+        # windows ffmpeg_windows
+        if not have_ffmpeg_windows:
+            print(Colors.fg.green, inspect.cleandoc("""
+                #############  Once python and pip installed, install ffmpeg cli by:
+                see README, install ffmpeg section of Windows install
+                """), Colors.reset, sep=os.linesep)
 
     # mac os
     if platform == 'Darwin':
