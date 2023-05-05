@@ -111,7 +111,7 @@ class myRecorder:
         self.thread = []
         self.result_file = None
 
-    def quit(self):
+    def show(self):
         for i in range(self.thd_num+1):
             self.thread[i].join()
             if self.thread[i].result_path is not None:
@@ -179,9 +179,13 @@ def transcribe():
     recorder.transcribe()
 
 
-def quitting():
+def show():
     recorder.stop()
-    recorder.quit()
+    recorder.show()
+
+
+def quitting():
+    show()
     exit(0)
 
 
@@ -259,8 +263,11 @@ else:
 trans_recorder = tk.Button(transcription_frame, text='Transcribe a File', command=transcribe)
 trans_recorder.grid(row=1, column=1, ipadx=5, pady=5)
 
+button_show = tk.Button(quit_frame, text='Show All', command=show)
+button_show.grid(row=1, column=1, ipadx=5, pady=5)
+
 button_quit = tk.Button(quit_frame, text='Quit', command=quitting)
-button_quit.grid(row=1, column=1, ipadx=5, pady=5)
+button_quit.grid(row=1, column=2, ipadx=5, pady=5)
 
 pic_path = os.path.join(ex_root.script_loc, 'fwg_table.png')
 image = tk.Frame(pic_frame, borderwidth=2, bg=box_color, relief=tk.SUNKEN)
