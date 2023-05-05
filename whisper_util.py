@@ -95,7 +95,8 @@ def check_install(platform, pure_python=True):
         # All good
         # #########Interim don't worry about macOS
         # If we have_python and have_pip and have_whisper and have_ffmpeg:
-        if have_python and have_pip and have_whisper and (platform == 'Darwin' or have_ffmpeg):
+        if have_python and have_pip and have_whisper and have_ffmpeg and\
+                (platform == 'Windows' and have_ffmpeg_windows) and (platform == 'Darwin' and have_ffmpeg):
             return 0
         else:
             return -1
