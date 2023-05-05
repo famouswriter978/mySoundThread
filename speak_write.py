@@ -61,7 +61,7 @@ class ExRoot:
         else:
             cfg_file = open(config_file_path, 'w')
             self.root_config.add_section('Root Preferences')
-            rec_folder_path = os.path.expanduser('~') + '/Documents/Recorder'
+            rec_folder_path = os.path.expanduser('~') + '/Documents/Recordings'
             if not os.path.exists(rec_folder_path):
                 os.makedirs(rec_folder_path)
             self.root_config.set('Root Preferences', 'recordings path', rec_folder_path)
