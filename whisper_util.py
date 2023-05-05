@@ -95,13 +95,18 @@ def check_install(platform, pure_python=True):
         # All good
         # #########Interim don't worry about macOS
         # If we have_python and have_pip and have_whisper and have_ffmpeg:
-        if have_python and have_pip and have_whisper and have_ffmpeg and\
-                (platform == 'Windows' and have_ffmpeg_windows) and (platform == 'Darwin' and have_ffmpeg):
+        if have_python and have_pip and have_whisper and have_ffmpeg and \
+                ((platform == 'Windows' and have_ffmpeg_windows) or
+                 (platform == 'Darwin' and have_ffmpeg)
+                 or platform == 'Linux'):
             return 0
         else:
+            print('have_python', have_python, 'have_pip', have_pip, 'have_whisper', have_whisper, 'have_ffmpeg_win',
+                  have_ffmpeg_windows, 'have_ffmpeg', have_ffmpeg)
             return -1
     else:
         print(Colors.fg.red, "platform '", platform, "' unknown.   Contact your administrator", Colors.reset)
+        return -1
 
 
 def check_install_pkg(pkg, verbose=False):
