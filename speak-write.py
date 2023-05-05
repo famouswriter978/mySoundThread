@@ -74,15 +74,15 @@ class ExRoot:
 
 # Wrap thread class so can extract resulting filename
 class CustomThread(Thread):
-    def __init__(self, out_path, waiting, silent):
+    def __init__(self, audio_path, waiting, silent):
         Thread.__init__(self)
         self.waiting = waiting
         self.silent = silent
-        self.out_path = out_path
+        self.audio_path = audio_path
         self.result_path = None
 
     def run(self):
-        self.result_path = whisper_to_write(model='', device='cpu', file_in=self.out_path,
+        self.result_path = whisper_to_write(model='', device='cpu', file_in=self.audio_path,
                                             waiting=self.waiting, silent=self.silent)
 
 
@@ -91,7 +91,7 @@ class myRecorder:
     def __init__(self, pwd_path, channels=1, rate=44100, frames_per_buffer=1024, format_out='mp3'):
         self.recorder = Recorder(channels=channels, rate=rate, frames_per_buffer=frames_per_buffer)
         self.file_path = None
-        self.out_path = None
+        self.audio_path = None
         self.txt_path = None
         self.pwd_path = pwd_path
         self.running = None
@@ -118,7 +118,7 @@ class myRecorder:
 
     def transcribe(self):
         try:
-            self.thread.append(CustomThread(self.out_path, True, False))
+            self.thread.append(CustomThread(None, False, True))
             self.thd_num += 1
             self.thread[self.thd_num].start()
             print('started thread', self.thd_num)
@@ -129,21 +129,21 @@ class myRecorder:
     def stop(self):
         if self.running is not None:
             file_name = 'speak-write' + str(datetime.now()).replace(':', '-').replace('.', '-') + '.mp3'
-            self.out_path = os.path.join(self.pwd_path, file_name)
+            self.audio_path = os.path.join(self.pwd_path, file_name)
             self.running.stop_recording()
             self.running.close()
             self.running = None
             print('Stopped recording; audio output in ', self.file_path)
-            pydub.AudioSegment.from_wav(self.file_path).export(self.out_path, format=self.format_out)
+            pydub.AudioSegment.from_wav(self.file_path).export(self.audio_path, format=self.format_out)
             try:
                 os.remove(self.file_path)
-                print('Converted', self.file_path, 'to', self.out_path)
-                self.thread.append(CustomThread(self.out_path, False, True))
+                print('Converted', self.file_path, 'to', self.audio_path)
+                self.thread.append(CustomThread(self.audio_path, False, True))
                 self.thd_num += 1
                 self.thread[self.thd_num].start()
                 print('started thread', self.thd_num)
             except OSError:
-                print('Conversion from', self.file_path, 'to', self.out_path, 'failed')
+                print('Conversion from', self.file_path, 'to', self.audio_path, 'failed')
                 pass
         else:
             print('not running')
