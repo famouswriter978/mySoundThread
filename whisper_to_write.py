@@ -45,7 +45,7 @@ def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=
         # Ask for input to force hold to see stderr
         if silent is False:
             input('\nEnter anything to close window')
-        return None
+        return None, None
 
     # Request list of files in a browse dialog
     if filepaths is None:
@@ -56,7 +56,7 @@ def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=
             print("No file chosen")
             if silent is False:
                 input('\nEnter anything to close window')
-            return None
+            return None, None
 
     # Configuration for entire folder selection read with filepaths
     (config_path, config_basename, config_file_path, config) = configurator(filepaths[0])

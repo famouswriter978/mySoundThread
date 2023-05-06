@@ -42,7 +42,7 @@ class CustomThread(Thread):
         global result_ready
         self.result_path, result_ready = whisper_to_write(model='', device='cpu', file_in=self.audio_path,
                                                           waiting=self.waiting, silent=self.silent)
-        if self.result_path is not None:
+        if self.result_path is not None and result_ready is True:
             print("Results displayed automatically at 'Quit' or by pressing 'Show All'")
 
 
