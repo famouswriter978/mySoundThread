@@ -22,19 +22,51 @@ import tkinter.filedialog
 from RawRecorder import *
 import pydub
 from whisper_to_write import *
-from threading import Thread
+from threading import Thread, Event
 from datetime import datetime
 from pvrecorder import PvRecorder
 result_ready = False
 
 
-def monitor_result_ready():
-    while True:
-        if result_ready:
-            print('ready')
-        else:
-            print('not ready')
-        time.sleep(5)
+# Wrap thread class so can extract resulting filename
+class CustomThread(Thread):
+    def __init__(self, audio_path, waiting, silent, recordings_folder):
+        Thread.__init__(self)
+        self.waiting = waiting
+        self.silent = silent
+        self.audio_path = audio_path
+        self.result_path = None
+        self.recordings_folder = recordings_folder
+
+    def run(self):
+        global result_ready
+        self.result_path, result_ready = whisper_to_write(model='', device='cpu', file_in=self.audio_path,
+                                                          waiting=self.waiting, silent=self.silent)
+        if self.result_path is not None:
+            print('Results displayed automatically at quit')
+
+
+class MonitorThread(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+        self._stop_event = Event()
+
+    def run(self):
+        while True:
+            if result_ready:
+                print('ready')
+            else:
+                print('not ready')
+            if self.stopped():
+                return
+            else:
+                time.sleep(5)
+
+    def stop(self):
+        self._stop_event.set()
+
+    def stopped(self):
+        return self._stop_event.is_set()
 
 
 # Executive class to control the global variables
@@ -48,8 +80,6 @@ class ExRoot:
         self.load_root_config(self.config_path)
         self.folder_button = None
         self.show_button = None
-        monitor_thread = Thread(target=monitor_result_ready)
-        monitor_thread.start()
 
     def select_recordings_folder(self):
         print('before', self.rec_folder)
@@ -90,24 +120,6 @@ class ExRoot:
             cfg_file.close()
             print('Saved', config_path_)
         return self.root_config
-
-
-# Wrap thread class so can extract resulting filename
-class CustomThread(Thread):
-    def __init__(self, audio_path, waiting, silent, recordings_folder):
-        Thread.__init__(self)
-        self.waiting = waiting
-        self.silent = silent
-        self.audio_path = audio_path
-        self.result_path = None
-        self.recordings_folder = recordings_folder
-
-    def run(self):
-        global result_ready
-        self.result_path, result_ready = whisper_to_write(model='', device='cpu', file_in=self.audio_path,
-                                                          waiting=self.waiting, silent=self.silent)
-        if self.result_path is not None:
-            print('Results displayed automatically at quit')
 
 
 class myRecorder:
@@ -205,6 +217,8 @@ def show():
 
 def quitting():
     show()
+    monitor_thread.stop()
+    monitor_thread.join()
     exit(0)
 
 
@@ -304,4 +318,6 @@ image.label = tk.Label(image, image=image.picture)
 image.label.pack()
 
 # Begin
+monitor_thread = MonitorThread()
+monitor_thread.start()
 root.mainloop()
