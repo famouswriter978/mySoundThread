@@ -16,8 +16,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # Lesser General Public License for more details.
 #
-# See http://www.fsf.org/licensing/licenses/lgpl.txt for full license text.
-import os
+# See http://www.fsf.org/licensing/licenses/lgpl.txt for full license text
 import time
 import timeit
 import whisper
@@ -26,14 +25,13 @@ import tkinter as tk
 from whisper_util import *
 from tkinter import filedialog
 os.environ['PYTHONIOENCODING'] = 'utf - 8'  # prevents UnicodeEncodeError: 'charmap' codec can't encode character
-result_ready = False
 
 
 # Wrap the openai Whisper program to make it useful and more portable
 def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=False):
 
     # Initialization
-    global result_ready
+    result_ready = False
     if file_in is None:
         filepaths = None
     else:
@@ -126,7 +124,7 @@ def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=
     if waiting is True and silent is False:
         input('\nEnter anything to close window')
 
-    return txt_path
+    return txt_path, result_ready
 
 
 if __name__ == '__main__':

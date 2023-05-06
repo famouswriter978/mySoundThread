@@ -25,6 +25,7 @@ from whisper_to_write import *
 from threading import Thread
 from datetime import datetime
 from pvrecorder import PvRecorder
+result_ready = False
 
 
 def monitor_result_ready():
@@ -102,8 +103,9 @@ class CustomThread(Thread):
         self.recordings_folder = recordings_folder
 
     def run(self):
-        self.result_path = whisper_to_write(model='', device='cpu', file_in=self.audio_path,
-                                            waiting=self.waiting, silent=self.silent)
+        global result_ready
+        self.result_path, result_ready = whisper_to_write(model='', device='cpu', file_in=self.audio_path,
+                                                          waiting=self.waiting, silent=self.silent)
         if self.result_path is not None:
             print('Results displayed automatically at quit')
 
