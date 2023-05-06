@@ -27,6 +27,15 @@ from datetime import datetime
 from pvrecorder import PvRecorder
 
 
+def monitor_result_ready():
+    while True:
+        if result_ready:
+            print('ready')
+        else:
+            print('not ready')
+        time.sleep(5)
+
+
 # Executive class to control the global variables
 class ExRoot:
     def __init__(self):
@@ -37,6 +46,9 @@ class ExRoot:
         self.root_config = None
         self.load_root_config(self.config_path)
         self.folder_button = None
+        self.show_button = None
+        monitor_thread = Thread(target=monitor_result_ready)
+        monitor_thread.start()
 
     def select_recordings_folder(self):
         print('before', self.rec_folder)
@@ -88,7 +100,6 @@ class CustomThread(Thread):
         self.audio_path = audio_path
         self.result_path = None
         self.recordings_folder = recordings_folder
-        self.show_button = None
 
     def run(self):
         self.result_path = whisper_to_write(model='', device='cpu', file_in=self.audio_path,
@@ -112,7 +123,6 @@ class myRecorder:
         self.result_file = None
         self.dictate_button = None
         self.stop_button = None
-        self.show_button = None
 
     def show(self):
         for i in range(self.thd_num+1):
@@ -120,7 +130,6 @@ class myRecorder:
             if self.thread[i].result_path is not None:
                 display_result(self.thread[i].result_path, platform, False)
                 print('stopped thread', i, ': result in', self.thread[i].result_path)
-                self.show_button.config(bg='lightgray')
             else:
                 print('stopped thread', i, ': result was screened')
 
@@ -154,8 +163,6 @@ class myRecorder:
                 self.thd_num += 1
                 print('starting thread', self.thd_num, end='...')
                 self.thread[self.thd_num].start()
-                if result_ready:
-                    self.show_button.config(bg='green')
             except OSError:
                 print('Conversion from', self.file_path, 'to', self.audio_path, 'failed')
                 pass
@@ -168,8 +175,6 @@ class myRecorder:
             self.thd_num += 1
             print('starting thread', self.thd_num, end='...')
             self.thread[self.thd_num].start()
-            if result_ready:
-                self.show_button.config(bg='green')
         except OSError:
             print('Transcription failed')
             pass
@@ -281,8 +286,8 @@ trans_recorder.grid(row=1, column=2, ipadx=5, pady=5)
 
 button_spacer = tk.Label(quit_frame, text='      ')
 button_spacer.grid(row=1, column=1, ipadx=5, pady=5, sticky="news")
-recorder.show_button = tk.Button(quit_frame, text='Show All', command=show, fg="white", bg="lightgray")
-recorder.show_button.grid(row=1, column=2, ipadx=5, pady=5)
+ex_root.show_button = tk.Button(quit_frame, text='Show All', command=show, fg="white", bg="lightgray")
+ex_root.show_button.grid(row=1, column=2, ipadx=5, pady=5)
 
 button_spacer = tk.Label(quit_frame, text='      ')
 button_spacer.grid(row=1, column=3, ipadx=5, pady=5, sticky="news")
