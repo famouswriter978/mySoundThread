@@ -43,20 +43,21 @@ class CustomThread(Thread):
         self.result_path, result_ready = whisper_to_write(model='', device='cpu', file_in=self.audio_path,
                                                           waiting=self.waiting, silent=self.silent)
         if self.result_path is not None:
-            print('Results displayed automatically at quit')
+            print("Results displayed automatically at 'Quit' or by pressing 'Show All'")
 
 
 class MonitorThread(Thread):
     def __init__(self):
         Thread.__init__(self)
         self._stop_event = Event()
+        self.show_button = None
 
     def run(self):
         while True:
             if result_ready:
-                print('ready')
+                self.show_button.config(bg="green")
             else:
-                print('not ready')
+                self.show_button.config(bg="lightgray")
             if self.stopped():
                 return
             else:
@@ -79,7 +80,6 @@ class ExRoot:
         self.root_config = None
         self.load_root_config(self.config_path)
         self.folder_button = None
-        self.show_button = None
 
     def select_recordings_folder(self):
         print('before', self.rec_folder)
@@ -123,7 +123,6 @@ class ExRoot:
 
 
 class myRecorder:
-
     def __init__(self, rec_path, channels=1, rate=44100, frames_per_buffer=1024, format_out='mp3'):
         self.recorder = Recorder(channels=channels, rate=rate, frames_per_buffer=frames_per_buffer)
         self.file_path = None
@@ -139,6 +138,7 @@ class myRecorder:
         self.stop_button = None
 
     def show(self):
+        global result_ready
         for i in range(self.thd_num+1):
             self.thread[i].join()
             if self.thread[i].result_path is not None:
@@ -146,6 +146,7 @@ class myRecorder:
                 print('stopped thread', i, ': result in', self.thread[i].result_path)
             else:
                 print('stopped thread', i, ': result was screened')
+        result_ready = False
 
     def start(self):
         self.file_path = os.path.join(self.rec_path, 'test.wav')
@@ -225,6 +226,7 @@ def quitting():
 # --- main ---
 # Configuration for entire folder selection read with filepaths
 cwd_path = os.getcwd()
+monitor_thread = MonitorThread()
 ex_root = ExRoot()
 recorder = myRecorder(ex_root.rec_folder)
 
@@ -302,8 +304,8 @@ trans_recorder.grid(row=1, column=2, ipadx=5, pady=5)
 
 button_spacer = tk.Label(quit_frame, text='      ')
 button_spacer.grid(row=1, column=1, ipadx=5, pady=5, sticky="news")
-ex_root.show_button = tk.Button(quit_frame, text='Show All', command=show, fg="white", bg="lightgray")
-ex_root.show_button.grid(row=1, column=2, ipadx=5, pady=5)
+monitor_thread.show_button = tk.Button(quit_frame, text='Show All', command=show, fg="white", bg="lightgray")
+monitor_thread.show_button.grid(row=1, column=2, ipadx=5, pady=5)
 
 button_spacer = tk.Label(quit_frame, text='      ')
 button_spacer.grid(row=1, column=3, ipadx=5, pady=5, sticky="news")
@@ -318,6 +320,5 @@ image.label = tk.Label(image, image=image.picture)
 image.label.pack()
 
 # Begin
-monitor_thread = MonitorThread()
 monitor_thread.start()
 root.mainloop()
