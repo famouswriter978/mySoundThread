@@ -54,14 +54,15 @@ class MonitorThread(Thread):
 
     def run(self):
         while True:
+            # print('top while true...stopped=', self.stopped())
+            if self.stopped():
+                # print('self.stopped...returning')
+                break
             if result_ready:
                 self.show_button.config(bg="green")
             else:
                 self.show_button.config(bg="lightgray")
-            if self.stopped():
-                return
-            else:
-                time.sleep(5)
+            time.sleep(2)
 
     def stop(self):
         self._stop_event.set()
@@ -144,9 +145,10 @@ class myRecorder:
             if self.thread[i].result_path is not None:
                 display_result(self.thread[i].result_path, platform, False)
                 print('stopped thread', i, ': result in', self.thread[i].result_path)
+                self.thread[i].result_path = None  # Clear
             else:
                 print('stopped thread', i, ': result was screened')
-        result_ready = False
+        result_ready = False  # Clear
 
     def start(self):
         self.file_path = os.path.join(self.rec_path, 'test.wav')
