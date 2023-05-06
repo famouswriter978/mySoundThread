@@ -26,12 +26,14 @@ import tkinter as tk
 from whisper_util import *
 from tkinter import filedialog
 os.environ['PYTHONIOENCODING'] = 'utf - 8'  # prevents UnicodeEncodeError: 'charmap' codec can't encode character
+result_ready = False
 
 
 # Wrap the openai Whisper program to make it useful and more portable
 def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=False):
 
     # Initialization
+    global result_ready
     if file_in is None:
         filepaths = None
     else:
@@ -99,6 +101,7 @@ def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=
             #            writer and writer_args are defined in openai-whisper/transcribe.py
             writer_args = {'highlight_words': False, 'max_line_count': None, 'max_line_width': None}
             writer(result, txt_path, writer_args)
+            result_ready = True
             print(Colors.fg.orange, "  The result is in ", Colors.fg.blue, txt_path, Colors.reset)
         else:
             writer = get_writer('txt', path)
@@ -110,6 +113,7 @@ def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=
             #            writer and writer_args are defined in openai-whisper/transcribe.py
             writer_args = {'highlight_words': False, 'max_line_count': None, 'max_line_width': None}
             writer(result, txt_path, writer_args)
+            result_ready = True
 
         print('')
         display_result(txt_path, platform, silent)

@@ -133,7 +133,7 @@ class myRecorder:
             self.running = self.recorder.open(self.file_path)
             self.running.start_recording()
             print('started recording', self.file_path)
-            self.record_button.config(bg="lightgray")
+            self.dictate_button.config(bg="lightgray")
             self.stop_button.config(bg="black")
 
     def stop(self):
@@ -143,7 +143,7 @@ class myRecorder:
             self.running.stop_recording()
             self.running.close()
             self.running = None
-            self.record_button.config(bg="red")
+            self.dictate_button.config(bg="red")
             self.stop_button.config(bg="lightgray")
             print('Stopped recording; audio output in ', self.file_path)
             pydub.AudioSegment.from_wav(self.file_path).export(self.audio_path, format=self.format_out)
@@ -154,7 +154,8 @@ class myRecorder:
                 self.thd_num += 1
                 print('starting thread', self.thd_num, end='...')
                 self.thread[self.thd_num].start()
-                self.show_button.config(bg='green')
+                if result_ready:
+                    self.show_button.config(bg='green')
             except OSError:
                 print('Conversion from', self.file_path, 'to', self.audio_path, 'failed')
                 pass
@@ -167,7 +168,8 @@ class myRecorder:
             self.thd_num += 1
             print('starting thread', self.thd_num, end='...')
             self.thread[self.thd_num].start()
-            self.show_button.config(bg='green')
+            if result_ready:
+                self.show_button.config(bg='green')
         except OSError:
             print('Transcription failed')
             pass
@@ -260,8 +262,8 @@ if mic_avail:
     button_spacer = tk.Label(dictation_frame, text='      ')
     button_spacer.grid(row=1, column=1, ipadx=5, pady=5, sticky="news")
 
-    recorder.record_button = tk.Button(dictation_frame, text='Dictate', command=start, bg="red", fg="white")
-    recorder.record_button.grid(row=1, column=2, ipadx=5, pady=5, sticky="news")
+    recorder.dictate_button = tk.Button(dictation_frame, text='Dictate', command=start, bg="red", fg="white")
+    recorder.dictate_button.grid(row=1, column=2, ipadx=5, pady=5, sticky="news")
 
     button_spacer = tk.Label(dictation_frame, text='      ')
     button_spacer.grid(row=1, column=3, ipadx=5, pady=5, sticky="news")
@@ -274,12 +276,12 @@ else:
 
 button_spacer = tk.Label(transcription_frame, text='      ')
 button_spacer.grid(row=1, column=1, ipadx=5, pady=5, sticky="news")
-trans_recorder = tk.Button(transcription_frame, text='Transcribe a File', command=transcribe)
+trans_recorder = tk.Button(transcription_frame, text='Transcribe a File', command=transcribe, fg="green")
 trans_recorder.grid(row=1, column=2, ipadx=5, pady=5)
 
 button_spacer = tk.Label(quit_frame, text='      ')
 button_spacer.grid(row=1, column=1, ipadx=5, pady=5, sticky="news")
-recorder.show_button = tk.Button(quit_frame, text='Show All', command=show, bg="lightgray")
+recorder.show_button = tk.Button(quit_frame, text='Show All', command=show, fg="white", bg="lightgray")
 recorder.show_button.grid(row=1, column=2, ipadx=5, pady=5)
 
 button_spacer = tk.Label(quit_frame, text='      ')
