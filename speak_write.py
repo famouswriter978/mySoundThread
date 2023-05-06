@@ -19,7 +19,6 @@
 # See http://www.fsf.org/licensing/licenses/lgpl.txt for full license text.
 
 import tkinter.filedialog
-import tkinter.ttk
 from RawRecorder import *
 import pydub
 from whisper_to_write import *
@@ -110,6 +109,8 @@ class myRecorder:
         self.thd_num = -1
         self.thread = []
         self.result_file = None
+        self.dictate_button = None
+        self.stop_button = None
 
     def show(self):
         for i in range(self.thd_num+1):
@@ -129,16 +130,8 @@ class myRecorder:
             self.running = self.recorder.open(self.file_path)
             self.running.start_recording()
             print('started recording', self.file_path)
-
-    def transcribe(self):
-        try:
-            self.thread.append(CustomThread(None, False, True, self.rec_path))
-            self.thd_num += 1
-            print('starting thread', self.thd_num, end='...')
-            self.thread[self.thd_num].start()
-        except OSError:
-            print('Transcription failed')
-            pass
+            self.record_button.config(bg="lightgray")
+            self.stop_button.config(bg="black")
 
     def stop(self):
         if self.running is not None:
@@ -147,6 +140,8 @@ class myRecorder:
             self.running.stop_recording()
             self.running.close()
             self.running = None
+            self.record_button.config(bg="red")
+            self.stop_button.config(bg="lightgray")
             print('Stopped recording; audio output in ', self.file_path)
             pydub.AudioSegment.from_wav(self.file_path).export(self.audio_path, format=self.format_out)
             try:
@@ -161,6 +156,16 @@ class myRecorder:
                 pass
         else:
             print('recorder was not running')
+
+    def transcribe(self):
+        try:
+            self.thread.append(CustomThread(None, False, True, self.rec_path))
+            self.thd_num += 1
+            print('starting thread', self.thd_num, end='...')
+            self.thread[self.thd_num].start()
+        except OSError:
+            print('Transcription failed')
+            pass
 
 
 def start():
@@ -216,8 +221,10 @@ icon_path = os.path.join(ex_root.script_loc, 'fwg.png')
 root.iconphoto(False, tk.PhotoImage(file=icon_path))
 # root.config(bg="skyblue")
 
-bg_color = "gray"
-box_color = "darkslategrey"
+# bg_color = "gray"
+# box_color = "darkslategrey"
+bg_color = None
+box_color = None
 
 outer_frame = tk.Frame(root, bd=5, bg=bg_color)
 outer_frame.pack(fill='x')
@@ -225,22 +232,22 @@ outer_frame.pack(fill='x')
 pic_frame = tk.Frame(root, bd=5, bg=bg_color)
 pic_frame.pack(fill='x')
 
-padx_frames = 1
-pady_frames = 2
+pad_x_frames = 1
+pad_y_frames = 2
 
 recordings_frame = tk.Frame(outer_frame, width=550, height=200, bg=box_color, bd=4, relief=tk.SUNKEN)
-recordings_frame.grid(row=1, column=1, padx=padx_frames, pady=pady_frames, sticky="WE")
+recordings_frame.grid(row=1, column=1, padx=pad_x_frames, pady=pad_y_frames, sticky="WE")
 recordings_frame.grid_columnconfigure(0, weight=1)
 recordings_frame.grid_rowconfigure(0, weight=1)
 
 dictation_frame = tk.Frame(outer_frame, width=350, height=100, bg=box_color, bd=4, relief=tk.SUNKEN)
-dictation_frame.grid(row=2, column=1, padx=padx_frames, pady=pady_frames, sticky="WE")
+dictation_frame.grid(row=2, column=1, padx=pad_x_frames, pady=pad_y_frames, sticky="WE")
 
 transcription_frame = tk.Frame(outer_frame, width=350, height=100, bg=box_color, bd=4, relief=tk.SUNKEN)
-transcription_frame.grid(row=3, column=1, padx=padx_frames, pady=pady_frames, sticky="WE")
+transcription_frame.grid(row=3, column=1, padx=pad_x_frames, pady=pad_y_frames, sticky="WE")
 
 quit_frame = tk.Frame(outer_frame, width=350, height=100, bg=box_color, bd=4, relief=tk.SUNKEN)
-quit_frame.grid(row=4, column=1, padx=padx_frames, pady=pady_frames, sticky="WE")
+quit_frame.grid(row=4, column=1, padx=pad_x_frames, pady=pad_y_frames, sticky="WE")
 
 folder_label = tk.Label(recordings_frame, text='Recordings path', bg=box_color, fg="white")
 folder_label.grid(row=1, column=1)
@@ -248,14 +255,17 @@ ex_root.folder_button = tk.Button(recordings_frame, text=ex_root.rec_folder, com
 ex_root.folder_button.grid(row=2, column=1, ipadx=5, pady=5)
 
 if mic_avail:
-    button_recorder = tk.Button(dictation_frame, text='Dictate', command=start, bg="orange", fg="white")
-    button_recorder.grid(row=1, column=1, ipadx=5, pady=5, sticky="news")
+    button_spacer = tk.Label(dictation_frame, text='      ')
+    button_spacer.grid(row=1, column=1, ipadx=5, pady=5, sticky="news")
 
-    button_spacer = tk.Label(dictation_frame, bg=box_color, text='Dictate', fg=box_color)
-    button_spacer.grid(row=1, column=2, ipadx=5, pady=5, sticky="news")
+    recorder.record_button = tk.Button(dictation_frame, text='Dictate', command=start, bg="red", fg="white")
+    recorder.record_button.grid(row=1, column=2, ipadx=5, pady=5, sticky="news")
 
-    button_stop = tk.Button(dictation_frame, text='Stop', command=stop, bg="black", fg="white")
-    button_stop.grid(row=1, column=3, ipadx=5, pady=5, sticky="news")
+    button_spacer = tk.Label(dictation_frame, text='      ')
+    button_spacer.grid(row=1, column=3, ipadx=5, pady=5, sticky="news")
+
+    recorder.stop_button = tk.Button(dictation_frame, text='Stop', command=stop, bg="lightgray", fg="white")
+    recorder.stop_button.grid(row=1, column=4, ipadx=5, pady=5, sticky="news")
 else:
     button_recorder = tk.Button(dictation_frame, text='NO MIC')
     button_recorder.pack()
@@ -270,7 +280,7 @@ button_quit = tk.Button(quit_frame, text='Quit', command=quitting)
 button_quit.grid(row=1, column=2, ipadx=5, pady=5)
 
 pic_path = os.path.join(ex_root.script_loc, 'fwg_table.png')
-image = tk.Frame(pic_frame, borderwidth=2, bg=box_color, relief=tk.SUNKEN)
+image = tk.Frame(pic_frame, borderwidth=2, bg=box_color)
 image.pack(side=tk.TOP, fill="x")
 image.picture = tk.PhotoImage(file=pic_path)
 image.label = tk.Label(image, image=image.picture)
