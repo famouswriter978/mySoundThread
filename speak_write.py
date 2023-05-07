@@ -258,10 +258,7 @@ root.iconphoto(False, tk.PhotoImage(file=icon_path))
 
 bg_color = "lightgray"
 box_color = "lightgray"
-if platform.system() == 'Darwin':
-    relief = None
-else:
-    relief = tk.SUNKEN
+relief = None
 
 outer_frame = tk.Frame(root, bd=5, bg=bg_color)
 outer_frame.pack(fill='x')
