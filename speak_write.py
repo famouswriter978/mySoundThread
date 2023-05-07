@@ -274,8 +274,8 @@ pad_y_frames = 2
 
 recordings_frame = tk.Frame(outer_frame, width=250, height=200, bg=box_color, bd=4)
 recordings_frame.grid(row=1, column=1, padx=pad_x_frames, pady=pad_y_frames, sticky="WE")
-recordings_frame.grid_columnconfigure(0, weight=1)
-recordings_frame.grid_rowconfigure(0, weight=1)
+# recordings_frame.grid_columnconfigure(0, weight=1)
+# recordings_frame.grid_rowconfigure(0, weight=1)
 
 dictation_frame = tk.Frame(outer_frame, width=250, height=100, bg=box_color, bd=4, relief=relief)
 dictation_frame.grid(row=2, column=1, padx=pad_x_frames, pady=pad_y_frames, sticky="WE")
