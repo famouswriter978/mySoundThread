@@ -226,13 +226,13 @@ def display_result(txt_path, platform, silent):
     paragraph(txt_path)
 
     if silent is False:
-        if platform.system() == 'Darwin':
+        if platform == 'Darwin':
             subprocess.Popen(['open', '-a', 'TextEdit', txt_path])
 
-        if platform.system() == 'Linux':
+        if platform == 'Linux':
             subprocess.Popen(['gedit', txt_path])
 
-        elif platform.system() == 'Windows':
+        elif platform == 'Windows':
             subprocess.Popen(['notepad', txt_path])
     else:
         print('Results in', txt_path)

@@ -114,7 +114,7 @@ def whisper_to_write(model='', device='cpu', file_in=None, waiting=True, silent=
             result_ready = True
 
         print('')
-        display_result(txt_path, platform, silent)
+        display_result(txt_path, platform.system(), silent)
 
         # Delay a little to allow windows to pop up without hiding each other.
         # The slower the computer, the more needed.
