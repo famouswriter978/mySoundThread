@@ -72,6 +72,7 @@ def check_install(platform, pure_python=True):
         (have_python, have_pip) = check_install_python(platform)
         have_whisper = check_install_whisper(pure_python)
         have_ffmpeg = check_install_ffmpeg(pure_python)
+        have_ffmpeg_windows = False
         if platform == 'Windows':
             have_ffmpeg_windows = check_install_ffmpeg(pure_python=False)
             if have_ffmpeg_windows == -1:
@@ -89,14 +90,15 @@ def check_install(platform, pure_python=True):
             pip_help(platform)
 
         # whisper / ffmpeg help:   openai-whisper installs them
-        if not have_whisper or not have_ffmpeg or not have_ffmpeg_windows:
+        if not have_whisper or not have_ffmpeg or\
+                (platform == 'Windows' and not have_ffmpeg_windows):
             whisper_help(platform, have_whisper, have_ffmpeg, have_ffmpeg_windows)
 
         # All good
         # #########Interim don't worry about macOS
         # If we have_python and have_pip and have_whisper and have_ffmpeg:
         if have_python and have_pip and have_whisper and have_ffmpeg and \
-                (platform == 'Windows' and have_ffmpeg_windows):
+                (platform != 'Windows' or have_ffmpeg_windows):
             return 0
         else:
             return -1
